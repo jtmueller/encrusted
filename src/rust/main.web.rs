@@ -35,7 +35,9 @@ use ui_web::WebUI;
 use zmachine::Zmachine;
 
 // thread local mutable global
-thread_local!(static ZVM: RefCell<Option<Zmachine>> = RefCell::new(None););
+thread_local!(
+    static ZVM: RefCell<Option<Zmachine>> = RefCell::new(None);
+);
 
 #[no_mangle]
 pub fn hook() {
@@ -69,9 +71,9 @@ where
 {
     ZVM.with(|cell| {
         let mut wrapper = cell.borrow_mut();
-        let zvm: &mut Zmachine = wrapper.as_mut().expect(
-            "Error unwrapping zmachine from cell"
-        );
+        let zvm: &mut Zmachine = wrapper
+            .as_mut()
+            .expect("Error unwrapping zmachine from cell");
 
         func(zvm)
     })
