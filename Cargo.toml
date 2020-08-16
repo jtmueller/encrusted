@@ -21,7 +21,7 @@ lto = true
 opt-level = 's'
 
 [dependencies]
-base64 = "0.10.1"
+base64 = "0.12.3"
 enum_primitive = "0.1.1"
 rand = "0.4.2"
 serde = "1.0.88"
