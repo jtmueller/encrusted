@@ -11,8 +11,8 @@ use std::str;
 
 use base64;
 use enum_primitive::FromPrimitive;
-use rand;
-use rand::{Rng, SeedableRng};
+use rand::{Rng, RngCore, SeedableRng};
+use rand_xoshiro::Xoshiro128StarStar;
 use serde_json;
 
 use buffer::Buffer;
@@ -150,7 +150,7 @@ pub struct Zmachine {
     current_state: Option<(String, Vec<u8>)>,
     undos: Vec<(String, Vec<u8>)>,
     redos: Vec<(String, Vec<u8>)>,
-    rng: rand::XorShiftRng,
+    rng: Box<dyn RngCore>,
 }
 
 impl Zmachine {
@@ -194,7 +194,7 @@ impl Zmachine {
             current_state: None,
             undos: Vec::new(),
             redos: Vec::new(),
-            rng: rand::SeedableRng::from_seed(options.rand_seed.clone()),
+            rng: Box::new(Xoshiro128StarStar::from_seed(options.rand_seed.clone())),
             memory,
             options,
         };
@@ -2200,7 +2200,6 @@ impl Zmachine {
         let range = range as i16;
 
         if range <= 0 {
-            self.rng.reseed([range as u32, 0, 0, 0]);
             0
         } else if range == 1 {
             1

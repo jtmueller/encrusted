@@ -2,6 +2,7 @@ extern crate atty;
 extern crate base64;
 extern crate clap;
 extern crate rand;
+extern crate rand_xoshiro;
 extern crate regex;
 extern crate serde_json;
 extern crate term_size;
@@ -21,6 +22,9 @@ use std::path::Path;
 use std::process;
 
 use clap::{App, Arg};
+
+use rand::{RngCore, SeedableRng};
+use rand_xoshiro::Xoshiro128StarStar;
 
 mod buffer;
 mod frame;
@@ -68,7 +72,7 @@ fn main() {
     if version == 0 || version > 8 {
         println!(
             "\n\
-             \"{}\" has an nsupported game version: {}\n\
+             \"{}\" has an unsupported game version: {}\n\
              Is this a valid game file?\n",
             path.to_string_lossy(),
             version
@@ -82,8 +86,8 @@ fn main() {
     opts.save_dir = path.parent().unwrap().to_string_lossy().into_owned();
     opts.save_name = path.file_stem().unwrap().to_string_lossy().into_owned();
 
-    let rand32 = || rand::random();
-    opts.rand_seed = [rand32(), rand32(), rand32(), rand32()];
+    let mut rng = Xoshiro128StarStar::seed_from_u64(0);
+    rng.fill_bytes(&mut opts.rand_seed);
 
     let mut zvm = Zmachine::new(data, ui, opts);
 
